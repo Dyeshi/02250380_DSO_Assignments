@@ -54,7 +54,7 @@ pipeline {
                         'docker-hub-creds'
                     ) {
                         image.push('latest')
-                        image.push('build-${env.BUILD_NUMBER}')
+                        image.push("build-${env.BUILD_NUMBER}")
                     }
                 }
             }
