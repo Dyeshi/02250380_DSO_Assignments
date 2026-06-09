@@ -1,9 +1,12 @@
 pipeline {
     agent any
+
     tools {
         nodejs 'NodeJS'
     }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -14,29 +17,29 @@ pipeline {
 
         stage('Install') {
             steps {
-                dir('backend') {
-                    sh 'npm install'
+                dir('todo-app/backend') {
+                    bat 'npm install'
                 }
             }
         }
 
         stage('Build') {
             steps {
-                dir('backend') {
-                    sh 'npm run build'
+                dir('todo-app/backend') {
+                    bat 'npm run build'
                 }
             }
         }
 
         stage('Test') {
             steps {
-                dir('backend') {
-                    sh 'npm test'
+                dir('todo-app/backend') {
+                    bat 'npm test'
                 }
             }
             post {
                 always {
-                    junit 'backend/junit.xml'
+                    junit 'todo-app/backend/junit.xml'
                 }
             }
         }
@@ -44,9 +47,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    dir('backend') {
+                    dir('todo-app/backend') {
                         docker.build('dyeshi/be-todo:latest')
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') {
+
+                        docker.withRegistry(
+                            'https://registry.hub.docker.com',
+                            'docker-hub-creds'
+                        ) {
                             docker.image('dyeshi/be-todo:latest').push()
                         }
                     }
