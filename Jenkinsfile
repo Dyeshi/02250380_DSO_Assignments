@@ -39,7 +39,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'todo-app/backend/junit.xml'
+                    junit testResults: 'todo-app/backend/junit.xml', allowEmptyResults: true
                 }
             }
         }
@@ -47,15 +47,14 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    dir('todo-app/backend') {
-                        docker.build('dyeshi/be-todo:latest')
+                    def image = docker.build('dyeshi/be-todo:latest', 'todo-app/backend')
 
-                        docker.withRegistry(
-                            'https://registry.hub.docker.com',
-                            'docker-hub-creds'
-                        ) {
-                            docker.image('dyeshi/be-todo:latest').push()
-                        }
+                    docker.withRegistry(
+                        'https://index.docker.io/v1/',
+                        'docker-hub-creds'
+                    ) {
+                        image.push('latest')
+                        image.push('build-${env.BUILD_NUMBER}')
                     }
                 }
             }
